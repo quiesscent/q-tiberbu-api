@@ -11,8 +11,10 @@ click-plugins==1.1.1
 click-repl==0.3.0
 cryptography==44.0.2
 Django==5.2
+django-cors-headers==4.7.0
 django-oauth-toolkit==3.0.1
 djangorestframework==3.16.0
+djangorestframework_simplejwt==5.5.0
 drf-yasg==1.21.10
 idna==3.10
 inflection==0.5.1
@@ -24,6 +26,7 @@ pillow==11.1.0
 prompt_toolkit==3.0.50
 psycopg2-binary==2.9.10
 pycparser==2.22
+PyJWT==2.9.0
 python-dateutil==2.9.0.post0
 pytz==2025.2
 PyYAML==6.0.2
