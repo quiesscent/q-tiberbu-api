@@ -9,11 +9,15 @@ urlpatterns = [
     path('auth/login/', LoginView.as_view(), name='login'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
 
-    # profiles
+    # # profiles
     path('patients/profile/', PatientProfileView.as_view()),
     path('doctors/profile/', DoctorProfileView.as_view()),
 
-    # appointments management
-    path('appointments/', AppointmentAPIGetCreateView.as_view(), name='appointments'),
-    path('appointments/<int:appointment_id>/', AppointmentAPIUpdateView.as_view(), name='appointment-update'),
+    # # appointments management
+    # path('appointments/', AppointmentAPIGetCreateView.as_view(), name='appointments'),
+    # path('appointments/<int:appointment_id>/', AppointmentAPIUpdateView.as_view(), name='appointment-update'),
+
+    # # medical records
+    # path('medical-records/', MedicalRecordCreateViewAPIView.as_view(), name='medical-records'),
+    # path('medical-records/<int:record_id>/', MedicalRecordUpdateDeleteAPIView.as_view(), name='medical-record-detail'),
 ]
