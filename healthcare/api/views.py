@@ -10,6 +10,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
 from datetime import datetime, timedelta
 from django.shortcuts import get_object_or_404
+import json
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -108,7 +109,17 @@ class DoctorProfileView(APIView):
         if hasattr(request.user, 'doctor_profile'):
             return Response({"error": "Doctor profile already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = self.serializer_class(data=request.data)
+        data = request.data.copy()
+        # Ensure available_days is a dict
+        available_days = data.get('available_days')
+        if isinstance(available_days, str):
+            import json
+            try:
+                data['available_days'] = json.loads(available_days)
+            except json.JSONDecodeError:
+                return Response({"error": "Invalid format for available_days."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.serializer_class(data=data)
         if serializer.is_valid():
             serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -117,7 +128,16 @@ class DoctorProfileView(APIView):
     def put(self, request):
         try:
             doctor = request.user.doctor_profile
-            serializer = self.serializer_class(doctor, data=request.data, partial=True)
+            data = request.data.copy()
+            available_days = data.get('available_days')
+            if isinstance(available_days, str):
+                import json
+                try:
+                    data['available_days'] = json.loads(available_days)
+                except json.JSONDecodeError:
+                    return Response({"error": "Invalid format for available_days."}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = self.serializer_class(doctor, data=data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -162,20 +182,42 @@ class AppointmentView(APIView):
             date = serializer.validated_data['date']
             time = serializer.validated_data['time']
 
+            # Check if doctor is available that day
+            weekday_name = date.strftime('%A')  # e.g. 'Monday'
+            if weekday_name not in doctor.available_days:
+                return Response({
+                    "message": f"Doctor is not available on {weekday_name}.",
+                    "available": False
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if time falls within doctor's working hours
+            if not (doctor.available_time_start <= time <= doctor.available_time_end):
+                return Response({
+                    "message": "Time selected is outside of doctor's working hours.",
+                    "available": False
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check for conflicting appointments
             if Appointment.objects.filter(doctor=doctor, date=date, time=time).exists():
                 return Response({
                     "message": "This slot is already booked.",
                     "available": False
                 }, status=status.HTTP_409_CONFLICT)
 
+            # Save appointment
             appointment = serializer.save(patient=request.user.patient_profile)
+
             return Response({
                 "message": "Appointment booked successfully.",
                 "appointment": AppointmentSerializer(appointment).data,
                 "available": True
             }, status=status.HTTP_201_CREATED)
 
-        return Response({"message": "Validation failed.", "errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "message": "Validation failed.",
+            "errors": serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
 
 class AppointmentUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -218,7 +260,7 @@ class DoctorAvailabilityView(APIView):
 
     def get(self, request, doctor_id):
         date_str = request.query_params.get('date')  # YYYY-MM-DD
-        time_str = request.query_params.get('time')  # Optional HH:MM:SS
+        time_str = request.query_params.get('time')  # Optional HH:MM
 
         if not date_str:
             return Response({"error": "'date' query parameter is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -228,9 +270,54 @@ class DoctorAvailabilityView(APIView):
         except Doctor.DoesNotExist:
             return Response({"error": "Doctor not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check single time slot
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        day_name = date_obj.strftime('%A')
+        available_days = doctor.available_days
+
+        # Doctor is not available on this day
+        if day_name not in available_days:
+            return Response({
+                "doctor_id": doctor_id,
+                "date": date_str,
+                "available": False,
+                "message": f"Doctor is not available on {day_name}."
+            }, status=status.HTTP_200_OK)
+
+        try:
+            start_time = datetime.strptime(available_days[day_name]["start"], "%H:%M")
+            end_time = datetime.strptime(available_days[day_name]["end"], "%H:%M")
+        except Exception:
+            return Response({"error": f"Invalid time format in availability for {day_name}."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        slot_duration = timedelta(minutes=30)
+
+        # Fetch booked slots
+        booked_times = set(
+            Appointment.objects.filter(doctor=doctor, date=date_str)
+            .values_list('time', flat=True)
+        )
+
+        # If checking a specific time
         if time_str:
-            is_booked = Appointment.objects.filter(doctor=doctor, date=date_str, time=time_str).exists()
+            try:
+                check_time = datetime.strptime(time_str, "%H:%M").time()
+            except ValueError:
+                return Response({"error": "Invalid time format. Use HH:MM."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not (start_time.time() <= check_time < end_time.time()):
+                return Response({
+                    "doctor_id": doctor_id,
+                    "date": date_str,
+                    "time": time_str,
+                    "available": False,
+                    "message": "Requested time is outside doctor's available hours."
+                })
+
+            is_booked = check_time in booked_times
             return Response({
                 "doctor_id": doctor_id,
                 "date": date_str,
@@ -238,23 +325,14 @@ class DoctorAvailabilityView(APIView):
                 "available": not is_booked
             })
 
-        # Full day availability
-        start_time = datetime.strptime("08:00", "%H:%M")
-        end_time = datetime.strptime("17:00", "%H:%M")
-        slot_duration = timedelta(minutes=30)
-
-        booked_times = set(
-            Appointment.objects.filter(doctor=doctor, date=date_str)
-            .values_list('time', flat=True)
-        )
-
-        time_slots = []
+        # If checking full day slots
         current = start_time
+        time_slots = []
         while current < end_time:
-            slot_str = current.time().strftime("%H:%M")
+            slot_time = current.time()
             time_slots.append({
-                "time": slot_str,
-                "available": current.time() not in booked_times
+                "time": slot_time.strftime("%H:%M"),
+                "available": slot_time not in booked_times
             })
             current += slot_duration
 

@@ -18,7 +18,7 @@ urlpatterns = [
     path('appointments/<int:appointment_id>/', AppointmentUpdateView.as_view(), name='appointment-update'),
     path('appointments/doctor/<int:doctor_id>/availability/', DoctorAvailabilityView.as_view(), name='doctor-availability'),
 
-    # # medical records
+    # medical records
     path('medical-records/', MedicalRecordListCreateView.as_view(), name='medical-records'),
     path('medical-records/<int:pk>/', MedicalRecordDetailView.as_view(), name='medical-record-detail'),
 ]

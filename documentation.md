@@ -71,7 +71,7 @@ The **Medical Records** module allows doctors and authorized users to maintain a
 - **id**: Primary Key
 - **user**: ForeignKey to `CustomUser` (one-to-one relationship)
 - **specialization**: Doctor's specialization (e.g., cardiologist, dermatologist)
-- **available**: Boolean indicating if the doctor is available
+- **available_days**: Boolean indicating if the doctor is available
 
 #### **Patient**
 - **id**: Primary Key
@@ -104,90 +104,14 @@ The **Medical Records** module allows doctors and authorized users to maintain a
 
 ---
 
-## Database Schema Diagram
+#### Database Schema Diagram
 
-```plaintext
- +----------------+       +------------------+
- |   CustomUser   |       |   DoctorProfile  |
- |----------------|       |------------------|
- | id (PK)        |<----->| user (FK)        |
- | username       |       | specialization   |
- | email          |       | available        |
- | password       |       +------------------+
- | role           |
- +----------------+
-        |
-        | 1
-        |
-        v
-  +-----------------+
-  |     Patient     |
-  |-----------------|
-  | id (PK)         |
-  | user (FK)       |
-  | full_name       |
-  | age             |
-  | gender          |
-  | phone           |
-  | address         |
-  | insurance_num   |
-  | insurance_provider |
-  +-----------------+
-        |
-        | 1
-        |
-        v
-  +--------------------+
-  |    Appointment     |
-  |--------------------|
-  | id (PK)            |
-  | patient (FK)       |
-  | doctor (FK)        |
-  | date               |
-  | time               |
-  | status             |
-  | reason             |
-  +--------------------+
-        |
-        | 1
-        |
-        v
-  +---------------------+
-  |   MedicalRecord     |
-  |---------------------|
-  | id (PK)             |
-  | patient (FK)        |
-  | doctor (FK)         |
-  | appointment (FK)    |
-  | diagnosis           |
-  | treatment           |
-  | notes               |
-  +---------------------+
-```
-### 4. Sequence Diagram for Appoitment Scheduling
+![Database Schema Diagramm](./images/schema.jpg)
 
-```plaintext
-Patient    Doctor      System      Database
-   |           |           |             |
-   |--Book-->  |           |             |
-   |           |           |--Check--->  | Availability
-   |           |           |             |
-   |           |           |<---Yes----  | Available
-   |           |           |             |
-   |           |<---Create Appointment--|
-   |           |           |--Save--->    | Appointment data
-   |           |           |             |
-   |<--Confirm--|           |             |
-   |           |           |             |
-```
+### 4. Sequence Diagram
 
-1. **Patient** initiates the booking process.
-2. **System** checks the availability of the **Doctor** based on the selected date and time.
-3. If the **Doctor** is available, the **System** creates an **Appointment**.
-4. The **Appointment** data is saved in the **Database**.
-5. The **Patient** receives confirmation.
+![Sequence Diagram](./images/image.png)
 
----
 
 ### 5.  Design Decisions
 

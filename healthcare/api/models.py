@@ -45,9 +45,7 @@ class Doctor(models.Model):
     bio = models.TextField(blank=True, null=True)
 
     # simple availability as days + time range
-    available_days = models.JSONField(default=list)  # e.g. ["Monday", "Wednesday"]
-    available_time_start = models.TimeField(default=timezone.now)
-    available_time_end = models.TimeField(default=timezone.now)
+    available_days = models.JSONField(default=dict)
 
     def __str__(self):
         return f"{self.full_name} - {self.specialization}"

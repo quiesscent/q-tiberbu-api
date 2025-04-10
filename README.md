@@ -121,7 +121,8 @@ The application will be available at `http://127.0.0.1:8000/`.
 The API documentation is available via Swagger UI at:
 
 ```
-http://127.0.0.1:8000/swagger/
+http://127.0.0.1:8000/
+
 ```
 
 Ensure that you have set up `drf-yasg` for automatic generation of Swagger docs.
