@@ -2,4 +2,4 @@ lib/
 bin/
 pyvenv.cfg
 **/db.sqlite
-documentation copy.md
+staticfiles/
