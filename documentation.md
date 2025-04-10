@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **Healthcare Appointment Scheduling System** is a web-based platform developed using Django. It enables efficient management of healthcare appointments by providing functionalities for **patient and doctor management, appointment scheduling, insurance details, and authentication via OAuth 2.0**. The system is backed by **PostgreSQL** for secure and scalable data management.
+The **Healthcare Appointment Scheduling System** is a web-based platform developed using Django. It enables efficient management of healthcare appointments by providing functionalities for **patient and doctor management, appointment scheduling, insurance details, and authentication**. The system is backed by **PostgreSQL** for secure and scalable data management.
 
 ## Features
 
