@@ -85,12 +85,12 @@ WSGI_APPLICATION = 'healthcare.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # test database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 REST_FRAMEWORK = {
@@ -101,16 +101,16 @@ REST_FRAMEWORK = {
 
 
 # actuall database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'healthcare',
-#         'USER': 'health',
-#         'PASSWORD': 'health',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'healthcare',
+        'USER': 'health',
+        'PASSWORD': 'health',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
 
 
 # Password validation
@@ -168,9 +168,9 @@ CORS_ALLOW_HEADERS = [
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static',]
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
+STATICFILES_DIRS = [BASE_DIR / 'staticfiles',]
 
 
 MEDIA_URL = '/media/'
