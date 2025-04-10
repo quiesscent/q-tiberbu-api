@@ -1,22 +1,8 @@
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError("Email is required")
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, password, **extra_fields)
-
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('patient', 'Patient'),
         ('doctor', 'Doctor'),
@@ -24,16 +10,16 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    username = models.CharField(max_length=50, unique=True)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
-    objects = CustomUserManager()
-
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
+    REQUIRED_FIELDS = ['username','role',]
+
+    class Meta:
+        verbose_name_plural ='Users'
 
     def __str__(self):
         return self.email
@@ -42,7 +28,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Patient(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='patient_profile')
     full_name = models.CharField(max_length=255)
-    age = models.PositiveIntegerField()
+    age = models.PositiveIntegerField(default=0)
     gender = models.CharField(max_length=10, choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')])
     phone = models.CharField(max_length=20)
     address = models.TextField()
@@ -59,9 +45,7 @@ class Doctor(models.Model):
     bio = models.TextField(blank=True, null=True)
 
     # simple availability as days + time range
-    available_days = models.JSONField(default=list)  # e.g. ["Monday", "Wednesday"]
-    available_time_start = models.TimeField()
-    available_time_end = models.TimeField()
+    available_days = models.JSONField(default=dict)
 
     def __str__(self):
         return f"{self.full_name} - {self.specialization}"
@@ -88,13 +72,13 @@ class Appointment(models.Model):
         return f"{self.date} - {self.time} with Dr. {self.doctor.full_name}"
 
 class MedicalRecord(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='medical_records')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='created_records')
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, null=True, blank=True)
     diagnosis = models.TextField()
-    prescription = models.TextField(blank=True, null=True)
+    treatment = models.TextField()
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Record for {self.patient.full_name} - {self.appointment.date}"
+        return f"Record for {self.patient.full_name} by Dr. {self.doctor.full_name}"
