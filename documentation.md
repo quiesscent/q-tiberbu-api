@@ -35,7 +35,7 @@ The **Medical Records** module allows doctors and authorized users to maintain a
 
 
 ### 6. API Documentation
-- API endpoints are documented using **Swagger/OpenAPI**.
+- API endpoints are documented using **Swagger**.
 - Available at `/swagger/` for interactive API testing.
 
 ---
@@ -47,7 +47,7 @@ The **Medical Records** module allows doctors and authorized users to maintain a
 |----------------|----------------|
 | Backend        | Django (Python) |
 | Database       | PostgreSQL      |
-| Authentication | OAuth 2.0 (Django OAuth Toolkit) |
+| Authentication | Token |
 | API Docs       | Swagger (drf-yasg) |
 
 ### 2. System Design

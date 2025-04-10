@@ -6,7 +6,7 @@
 ---
 
 ## Authentication
-- **Method:** OAuth 2.0
+- **Method:** Tokens
 - **Required for all endpoints unless stated otherwise**
 
 ---
@@ -15,7 +15,7 @@
 
 ### 1. Doctor Profile
 
-#### GET `/doctor/profile/`
+#### GET `/doctors/profile/`
 - **Description:** Retrieve the authenticated doctor's profile.
 - **Auth:** Required (Doctor)
 - **Response:**
@@ -31,7 +31,7 @@
 }
 ```
 
-#### POST `/doctor/profile/`
+#### POST `/doctors/profile/`
 - **Description:** Create a doctor profile.
 - **Body:**
 ```json
@@ -46,17 +46,17 @@
 }
 ```
 
-#### PUT `/doctor/profile/`
+#### PUT `/doctors/profile/`
 - **Description:** Update profile (partial allowed).
 
-#### DELETE `/doctor/profile/`
+#### DELETE `/doctors/profile/`
 - **Description:** Delete the doctor profile.
 
 ---
 
 ### 2. Doctor Availability
 
-#### GET `/doctor/{doctor_id}/availability/?date=YYYY-MM-DD&time=HH:MM`
+#### GET `/appointments/doctor/{doctor_id}/availability/?date=YYYY-MM-DD&time=HH:MM`
 - **Description:** Check if a doctor is available at a specific time.
 - **Params:**
   - `date`: Required
@@ -71,7 +71,7 @@
 }
 ```
 
-#### GET `/doctor/{doctor_id}/availability/?date=YYYY-MM-DD`
+#### GET `appointments/doctor/{doctor_id}/availability/?date=YYYY-MM-DD`
 - **Description:** Get all available time slots on a specific date.
 - **Response:**
 ```json
@@ -141,6 +141,18 @@
 }
 ```
 
+#### PUT `/appointments/{appointment_id}/`
+- **Description:** Update an appointment status.
+- **Auth:** Doctor Only
+- **Body:**
+```json
+{
+  "status": "complete"
+}
+```
+
+#### DELETE `/appointments/{appointment__id}/`
+- **Description:** Delete the doctor profile.
 ---
 
 ### 4. Authentication
@@ -221,6 +233,24 @@
   "treatment":"Pills",
 }
 ```
+#### PATCH `/medical-records/{id}/`
+- **Description:** Update a  medical record.
+- **Body:**
+```json
+{
+  "diagnosis": "Hypertension",
+  "treatment": "Medication",
+  "appointment":1,
+  "patient":1,
+  "doctor":1,
+  "notes": "Patient to return in 2 weeks",
+  "diagnosis":"Alzheimer",
+  "treatment":"Pills",
+}
+```
+
+#### DELETE `/medical-records/{id}/`
+- **Description:** Delete medical record.
 
 ---
 

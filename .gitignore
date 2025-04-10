@@ -3,4 +3,3 @@ bin/
 pyvenv.cfg
 # **/db.sqlite
 staticfiles/
-static/
