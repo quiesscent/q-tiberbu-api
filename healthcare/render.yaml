@@ -1,5 +1,5 @@
 databases:
-  - name: campaign
+  - name: tiberbu
     plan: free
     databaseName: tiberbu
     user: tiberbu
@@ -9,12 +9,15 @@ services:
     plan: free
     name: healthcare
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py migrate
+      python manage.py collectstatic --noinput
     startCommand: "python -m gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: campaign_kzcd
+          name: campaign
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
