@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'api',
-    'oauth2_provider',
+    # 'oauth2_provider',
     'drf_spectacular',
     'drf_yasg',
 ]
