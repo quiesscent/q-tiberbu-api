@@ -86,12 +86,12 @@ WSGI_APPLICATION = 'healthcare.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # test database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 REST_FRAMEWORK = {
@@ -105,16 +105,16 @@ REST_FRAMEWORK = {
 }
 
 # actuall database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'healthcare',
-        'USER': 'health',
-        'PASSWORD': 'health',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'healthcare',
+#         'USER': 'health',
+#         'PASSWORD': 'health',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
